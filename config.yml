@@ -1,0 +1,31 @@
+# ProBleed by BallisticBlaze
+# All times are in seconds
+
+# chance is how likely someone would start bleeding. 1 is 100%, 0.01 is 1%
+# length is how often a player should get hurt when bleeding
+# damage is how much damage a player shall get. 2 is one heart
+# plength is how long all the potions affecting the player are
+# last-length is how long the player should have the bleeding effect before they self heal. Put -1 to force the player to find a bandage
+# action-bar is whether to show the player a message in the action bar instead of chat
+# potions is the potions to apply to the player when they are bleeding. You first write the potion name and then the strength you want it at. e.g: slow digging:1
+# use-recipe determines if players can use a normal piece of paper to heal themselves. If set to true, the below recipe must be used.
+# recipe is the recipe players should use if they want a bandage. Key is defined below. Must be three lines or recipe will fail and be disabled.
+# recipe-key: Each entry must have an equals with a valid item on the right side. If one is invalid, an error will be displayed in te console with recipes being disabled.
+chance: 0.05
+length: 10
+damage: 0.5
+plength: 5
+last-length: 120
+action-bar: true
+potions:
+- 'blindness:2'
+- 'slow:2'
+use-recipe: false
+recipe:
+- 'ooo'
+- 'o%s'
+- 'ooo'
+recipe-key:
+- 'o=air'
+- '%=paper'
+- 's=string'

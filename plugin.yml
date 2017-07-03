@@ -1,0 +1,25 @@
+name: ProBleed
+main: com.SimplyBallistic.ProBleed.ProBleedPlugin
+version: 1.3.5
+description: Make your players spew blood
+author: xBallisticBlazex
+commands:
+   bandage:
+      description: Give yourself a bandage that can stop bleeding if right clicked
+      usage: /<command> 
+      permission: probleed.bandage  
+      aliases: [bdg]
+   stopbleed:
+      description: Stop yourself from bleeding 
+      usage: /<command> 
+      permission: probleed.stopbleed
+      aliases: [sbleed]
+   probleed:
+      description: Make yourself bleed
+      usage: /<command> 
+      permission: probleed.bleedcommand
+      aliases: [bleed]        
+permissions:     
+   probleed.bypass:
+      description: Stops you from being able to bleed
+   
