@@ -1,5 +1,5 @@
 # ProBleed
 Make your players suffer blood loss. Cause you can!
 
-The source of this plugin will be put here one it is open source. 
+This plugin was made open source on 4/07/2017! 
 You can view it here: https://www.spigotmc.org/resources/probleed-hc-blood-loss-sim.42696/
