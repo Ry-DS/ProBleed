@@ -59,8 +59,11 @@ public void onEnable() {
                 getLogger().info(ChatColor.RED+"The updater was disabled! You might miss important updates!");
             //else getLogger().info("This is a DEV Build! There may be bugs!");
         if(updater.getResult().equals(Updater.UpdateResult.SUCCESS)){
-            Bukkit.reload();
-            fancyLog(ChatColor.GREEN+"You have just updated ProBleed! You are now on: "+ChatColor.AQUA+updater.getLatestVersion());}
+           // Bukkit.reload();
+            fancyLog(ChatColor.GREEN+"You have just updated ProBleed! You are now on: "+ChatColor.AQUA+updater.getLatestVersion());
+            fancyLog(ChatColor.GREEN+"It will be applied on the next server reload/restart");
+
+        }
 
 
 	},true);
