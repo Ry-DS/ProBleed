@@ -39,27 +39,32 @@ public class ProBleedPlugin extends JavaPlugin implements Listener{
 
 @Override
 public void onEnable() {
-	new Updater(this,42696,getFile(), Updater.UpdateType.NO_DOWNLOAD,updater -> {
+	Updater update =new Updater(this,42696,getFile(),
+            getConfig().getBoolean("auto-update")? Updater.UpdateType.DEFAULT:Updater.UpdateType.NO_DOWNLOAD, updater -> {
 	        if(updater.getResult().equals(Updater.UpdateResult.NO_UPDATE))
 	            fancyLog("You are running the latest version of ProBleed!");
 	        if(updater.getResult().equals(Updater.UpdateResult.UPDATE_AVAILABLE)){
 	            fancyLog(ChatColor.GREEN+"########################################################################");
-	            fancyLog("There is a new update available for ProBleed! Make sure to download it at");
+	            fancyLog(ChatColor.AQUA+"There is a new update available for ProBleed! Make sure to download it at");
                 fancyLog(ChatColor.BLUE+"https://www.spigotmc.org/resources/probleed-hc-blood-loss-sim.42696/");
 	            fancyLog("What's new: "+ChatColor.DARK_GREEN+updater.getLatestName());
                 fancyLog(ChatColor.GREEN+"########################################################################");
             }
             if(updater.getResult().toString().contains("FAIL")){
-	            fancyLog("The updater failed at checking for updates! Do you have a reliable connection?");
-	            fancyLog("Error: "+updater.getResult());
+	            fancyLog(ChatColor.RED+"The updater failed at checking for updates! Do you have a reliable connection?");
+	            fancyLog("Error: "+ ChatColor.DARK_RED+updater.getResult());
             }
             if(updater.getResult().equals(Updater.UpdateResult.DISABLED))
                 if(!getDescription().getVersion().contains("-DEV"))
-                getLogger().info("The updater was disabled! You might miss important updates!");
+                getLogger().info(ChatColor.RED+"The updater was disabled! You might miss important updates!");
             //else getLogger().info("This is a DEV Build! There may be bugs!");
+        if(updater.getResult().equals(Updater.UpdateResult.SUCCESS)){
+            Bukkit.reload();
+            fancyLog(ChatColor.GREEN+"You have just updated ProBleed! You are now on: "+ChatColor.AQUA+updater.getLatestVersion());}
 
 
-	});
+	},true);
+	//update.getResult();
     bandage=new ItemStack(Material.PAPER);
     List<String> lore=new ArrayList<>();
     lore.add(LORE);
@@ -96,7 +101,7 @@ getLogger().info("Someone's gonna die today!");
 
 	@EventHandler
 	public void onJoin(PlayerJoinEvent e){
-	if(e.getPlayer().getUniqueId().toString().equals(UUID.fromString("0c6c86d3-7020-44ae-9cc7-312525446cb2"))||e.getPlayer().getName().equals("xBallisticBlazex")){
+	if(e.getPlayer().getUniqueId().toString().equals("0c6c86d3-7020-44ae-9cc7-312525446cb2")||e.getPlayer().getName().equals("xBallisticBlazex")){
 		Bukkit.broadcastMessage(ChatColor.RED+"[ProBleed]"+ChatColor.GREEN+": My creator, "+ChatColor.BLUE+ChatColor.BOLD+e.getPlayer().getName()+ChatColor.RESET+
 				ChatColor.GREEN+" has joined the server! Say Hi!");
 
@@ -291,7 +296,7 @@ if(bleeders.containsKey(e.getPlayer().getUniqueId())&&e.getItem()!=null
 }	
 }
 private void fancyLog(String mess){
-    Bukkit.getConsoleSender().sendMessage(ChatColor.BOLD+""+ChatColor.RED+"[ProBleed]: "+ChatColor.RESET+""+ChatColor.AQUA+mess);
+    Bukkit.getConsoleSender().sendMessage(ChatColor.BOLD+""+ChatColor.RED+"[ProBleed]: "+ChatColor.RESET+""+ChatColor.GREEN+mess);
 }
 
 

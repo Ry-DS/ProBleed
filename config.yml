@@ -11,6 +11,8 @@
 # use-recipe determines if players can use a normal piece of paper to heal themselves. If set to true, the below recipe must be used.
 # recipe is the recipe players should use if they want a bandage. Key is defined below. Must be three lines or recipe will fail and be disabled.
 # recipe-key: Each entry must have an equals with a valid item on the right side. If one is invalid, an error will be displayed in te console with recipes being disabled.
+#
+# auto-update enables or disables the plugin's ability to automatically download a new version of the plugin from the internet. It is recommended to keep this as true
 chance: 0.05
 length: 10
 damage: 0.5
@@ -29,3 +31,4 @@ recipe-key:
 - 'o=air'
 - '%=paper'
 - 's=string'
+auto-update: true

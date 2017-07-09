@@ -1,6 +1,6 @@
 name: ProBleed
 main: com.SimplyBallistic.ProBleed.ProBleedPlugin
-version: 1.3.6
+version: 1.3.7
 description: Make your players spew blood
 author: xBallisticBlazex
 commands:
