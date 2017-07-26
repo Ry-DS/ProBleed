@@ -20,6 +20,9 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.inventivetalent.update.spiget.SpigetUpdate;
+import org.inventivetalent.update.spiget.UpdateCallback;
+import org.inventivetalent.update.spiget.comparator.VersionComparator;
 
 import java.util.*;
 
@@ -39,34 +42,9 @@ public class ProBleedPlugin extends JavaPlugin implements Listener{
 
 @Override
 public void onEnable() {
-	Updater update =new Updater(this,42696,getFile(),
-            getConfig().getBoolean("auto-update")? Updater.UpdateType.DEFAULT:Updater.UpdateType.NO_DOWNLOAD, updater -> {
-	        if(updater.getResult().equals(Updater.UpdateResult.NO_UPDATE))
-	            fancyLog("You are running the latest version of ProBleed!");
-	        if(updater.getResult().equals(Updater.UpdateResult.UPDATE_AVAILABLE)){
-	            fancyLog(ChatColor.GREEN+"########################################################################");
-	            fancyLog(ChatColor.AQUA+"There is a new update available for ProBleed! Make sure to download it at");
-                fancyLog(ChatColor.BLUE+"https://www.spigotmc.org/resources/probleed-hc-blood-loss-sim.42696/");
-	            fancyLog("What's new: "+ChatColor.DARK_GREEN+updater.getLatestName());
-                fancyLog(ChatColor.GREEN+"########################################################################");
-            }
-            if(updater.getResult().toString().contains("FAIL")){
-	            fancyLog(ChatColor.RED+"The updater failed at checking for updates! Do you have a reliable connection?");
-	            fancyLog("Error: "+ ChatColor.DARK_RED+updater.getResult());
-            }
-            if(updater.getResult().equals(Updater.UpdateResult.DISABLED))
-                if(!getDescription().getVersion().contains("-DEV"))
-                getLogger().info(ChatColor.RED+"The updater was disabled! You might miss important updates!");
-            //else getLogger().info("This is a DEV Build! There may be bugs!");
-        if(updater.getResult().equals(Updater.UpdateResult.SUCCESS)){
-           // Bukkit.reload();
-            fancyLog(ChatColor.GREEN+"You have just updated ProBleed! You are now on: "+ChatColor.AQUA+updater.getLatestVersion());
-            fancyLog(ChatColor.GREEN+"It will be applied on the next server reload/restart");
 
-        }
+	checkUpdates();
 
-
-	},true);
 	//update.getResult();
     bandage=new ItemStack(Material.PAPER);
     List<String> lore=new ArrayList<>();
@@ -96,7 +74,10 @@ getServer().getPluginManager().registerEvents(new BleedListener(this), this);
 getLogger().info("Someone's gonna die today!");
 
 }
-@Override
+
+
+
+	@Override
 	public void onDisable() {
 		bleeders.clear();
 		getLogger().info("Shutting down...");
@@ -177,6 +158,7 @@ public boolean onCommand(CommandSender sender, Command command, String label, St
         if(!(sender instanceof Player))sender.sendMessage("You can't do that!");
         else{
         	Player p=(Player)sender;
+
         	removeBleeders.add(p.getUniqueId());
         	p.sendMessage("You are no longer bleeding!");
         	
@@ -301,6 +283,73 @@ if(bleeders.containsKey(e.getPlayer().getUniqueId())&&e.getItem()!=null
 private void fancyLog(String mess){
     Bukkit.getConsoleSender().sendMessage(ChatColor.BOLD+""+ChatColor.RED+"[ProBleed]: "+ChatColor.RESET+""+ChatColor.GREEN+mess);
 }
+	private void checkUpdates() {
+		new Updater(ProBleedPlugin.this,42696,getFile(), Updater.UpdateType.NO_DOWNLOAD,bUpdater->{
+			if(bUpdater.getResult().toString().contains("FAIL")){
+				fancyLog(ChatColor.RED+"The updater failed at checking for updates! Do you have a reliable connection?");
+				fancyLog("Error: "+ ChatColor.DARK_RED+bUpdater.getResult().toString().toLowerCase().replaceAll("_"," "));
 
+
+
+
+			}else{
+				final SpigetUpdate updater = new SpigetUpdate(this, 42696).setVersionComparator(new VersionComparator() {
+					@Override
+					public boolean isNewer(String s, String s1) {
+						return !s.equals(s1);
+					}
+				});
+				updater.checkForUpdate(new UpdateCallback() {
+					@Override
+					public void updateAvailable(String newVersion, String downloadUrl, boolean hasDirectDownload) {
+						// First check if there is a direct download available
+						// (Either the resources is hosted on spigotmc.org, or Spiget has a cached version to download)
+						// external downloads won't work if they are disabled (by default) in spiget.properties
+
+						if( !getConfig().getBoolean("auto-update")){
+									fancyLog(ChatColor.GREEN+"########################################################################");
+									fancyLog(ChatColor.AQUA+"There is a new update available for ProBleed! Make sure to download it at");
+									fancyLog(ChatColor.BLUE+"https://www.spigotmc.org/resources/probleed-hc-blood-loss-sim.42696/");
+									fancyLog("What's new: "+ChatColor.DARK_GREEN+bUpdater.getLatestName());
+									fancyLog(ChatColor.GREEN+"########################################################################");
+									fancyLog(ChatColor.RED+"This update wasn't downloaded automagically because of the config settings");
+									fancyLog(ChatColor.DARK_RED+"Consider changing them to make your life easier!");
+
+
+
+
+
+						}else
+						if (hasDirectDownload) {
+
+							if (!getDescription().getVersion().contains("-DEV")&&updater.downloadUpdate()) {
+										fancyLog(ChatColor.GREEN+"You have just updated ProBleed! You are now on: "+ChatColor.AQUA+bUpdater.getLatestVersion());
+										fancyLog("What's new: "+ChatColor.DARK_GREEN+bUpdater.getLatestName());
+										fancyLog(ChatColor.GREEN+"It will be applied on the next server reload/restart");
+
+
+
+
+							} else {
+								fancyLog(ChatColor.GREEN+"########################################################################");
+								fancyLog(ChatColor.AQUA+"There is a new update available for ProBleed! Make sure to download it at");
+								fancyLog(ChatColor.BLUE+"https://www.spigotmc.org/resources/probleed-hc-blood-loss-sim.42696/");
+								fancyLog(ChatColor.GREEN+"########################################################################");
+								fancyLog(ChatColor.RED+"The updater failed at updating automatically! Do you have a reliable connection?");
+								fancyLog("Error: "+ ChatColor.DARK_RED+updater.getFailReason());
+							}
+						}
+					}
+
+					@Override
+					public void upToDate() {
+						fancyLog("You are running the latest version of ProBleed!");
+
+					}
+
+				});
+			}
+		},false);
+	}
 
 }
