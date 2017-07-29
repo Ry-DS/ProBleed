@@ -1,7 +1,7 @@
 package com.SimplyBallistic.ProBleed;
 
 import com.SimplyBallistic.ProBleed.util.EnchantGlow;
-import com.SimplyBallistic.ProBleed.util.Updater;
+import com.SimplyBallistic.ProBleed.util.LanguageYml;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
@@ -21,6 +21,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.inventivetalent.update.spiget.SpigetUpdate;
+import org.inventivetalent.update.spiget.SpigetUpdateAbstract;
 import org.inventivetalent.update.spiget.UpdateCallback;
 import org.inventivetalent.update.spiget.comparator.VersionComparator;
 
@@ -37,26 +38,25 @@ public class ProBleedPlugin extends JavaPlugin implements Listener{
 	private static double damage;
 	private ProBleedPlugin pl;
 	private ItemStack bandage;
-	private final String LORE=ChatColor.AQUA+"Use me to heal yourself from bleeding!";
-	private final String[] regex={"!","#","$","%","*","(",")","-","a"};
+	private String LORE;
 
 @Override
 public void onEnable() {
 
 	checkUpdates();
-
-	//update.getResult();
+	reloadConfig();
+	LORE=LanguageYml.get("item-lore-1");
     bandage=new ItemStack(Material.PAPER);
     List<String> lore=new ArrayList<>();
     lore.add(LORE);
-    lore.add("Or use me as paper, that's fine as well");
+    lore.add(LanguageYml.get("item-lore-2"));
     ItemMeta meta=bandage.getItemMeta();
-    meta.setDisplayName(ChatColor.GREEN+"Bandage");
+    meta.setDisplayName(LanguageYml.get("item-name"));
     meta.setLore(lore);
     meta.addEnchant(EnchantGlow.getGlow(),1,true);
     bandage.setItemMeta(meta);
 
-    reloadConfig();
+
     pl=this;
 	bleeders= new HashMap<>();
 	removeBleeders = new HashSet<>();
@@ -95,6 +95,7 @@ getLogger().info("Someone's gonna die today!");
     @Override
     public void reloadConfig() {
         saveDefaultConfig();
+        new LanguageYml(this);
         Bukkit.resetRecipes();
         super.reloadConfig();
         getConfig().options().copyDefaults(true);
@@ -166,14 +167,14 @@ public boolean onCommand(CommandSender sender, Command command, String label, St
         
 		
 	}if(command.getName().equalsIgnoreCase("probleed")){
-        if(!(sender instanceof Player)){reloadConfig();sender.sendMessage("Config reloaded");}
+        if(!(sender instanceof Player)){reloadConfig();sender.sendMessage(LanguageYml.get("reload-config"));}
         else if(args.length==0){
         	Player p=(Player)sender;
         	bleeders.put(p.getUniqueId(),new StopWatch[2]);
         	p.sendMessage("You are now bleeding!");
         	
         }else {reloadConfig();
-        sender.sendMessage(ChatColor.GREEN+"Config reloaded");
+        sender.sendMessage(LanguageYml.get("reload-config"));
         }
         }
 	return true;
@@ -200,7 +201,7 @@ private void checkBleed(UUID id,StopWatch[] st){
 	    removeBleeders.add(id);
 	    if(useBar)
             Bukkit.getScheduler().runTaskLater(pl, ()->
-                            p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN+"You have self healed"))
+                            p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(LanguageYml.get("self-heal-message")))
                     , 20);
 
     }
@@ -217,14 +218,12 @@ private static Location makeBleedLoc(Location l){
 	p.getWorld().playEffect(makeBleedLoc(p.getLocation()), Effect.STEP_SOUND, Material.REDSTONE_WIRE);
 	if(useBar)
 	Bukkit.getScheduler().runTaskLater(pl, ()->
-				p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.RED+"You are Bleeding!"
-						+ChatColor.GREEN+" Use a piece of paper to heal yourself"))
+				p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(LanguageYml.get("bleeding-message")))
 		, 20);
 
 	else
 	    Bukkit.getScheduler().runTaskLater(pl, ()->
-                        p.sendMessage(ChatColor.RED+"You are Bleeding!"
-                                +ChatColor.GREEN+" Use a piece of paper to heal yourself")
+                        p.sendMessage(LanguageYml.get("bleeding-message"))
                 , 20);
 
 	
@@ -234,7 +233,7 @@ private static Location makeBleedLoc(Location l){
 @EventHandler
 public void deathMessEditor(PlayerDeathEvent e){
 	if(bleeders.containsKey(e.getEntity().getUniqueId())){
-		e.setDeathMessage(e.getEntity().getName()+" failed to find a bandage and bled to death");
+		e.setDeathMessage(LanguageYml.get("death-message").replaceAll("%player%",e.getEntity().getName()));
 	removeBleeders.add(e.getEntity().getUniqueId());
 	
 	}
@@ -271,10 +270,10 @@ if(bleeders.containsKey(e.getPlayer().getUniqueId())&&e.getItem()!=null
 	else e.getPlayer().getInventory().setItemInOffHand(stack);
 	removeBleeders.add(e.getPlayer().getUniqueId());
 	if(useBar)Bukkit.getScheduler().runTaskLater(this, ()->
-                    e.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN+"You have stopped your bleeding"))
+                    e.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(LanguageYml.get("heal-message")))
 
             , 10);
-	else e.getPlayer().sendMessage(ChatColor.GREEN+"You have stopped your bleeding");
+	else e.getPlayer().sendMessage(LanguageYml.get("heal-message"));
 
 	
 	
@@ -284,24 +283,19 @@ private void fancyLog(String mess){
     Bukkit.getConsoleSender().sendMessage(ChatColor.BOLD+""+ChatColor.RED+"[ProBleed]: "+ChatColor.RESET+""+ChatColor.GREEN+mess);
 }
 	private void checkUpdates() {
-		new Updater(ProBleedPlugin.this,42696,getFile(), Updater.UpdateType.NO_DOWNLOAD,bUpdater->{
-			if(bUpdater.getResult().toString().contains("FAIL")){
-				fancyLog(ChatColor.RED+"The updater failed at checking for updates! Do you have a reliable connection?");
-				fancyLog("Error: "+ ChatColor.DARK_RED+bUpdater.getResult().toString().toLowerCase().replaceAll("_"," "));
 
-
-
-
-			}else{
-				final SpigetUpdate updater = new SpigetUpdate(this, 42696).setVersionComparator(new VersionComparator() {
+				new SpigetUpdate(this, 42696,false).setVersionComparator(VersionComparator.EQUAL
+				)
+				.checkForUpdate(new UpdateCallback() {
 					@Override
-					public boolean isNewer(String s, String s1) {
-						return !s.equals(s1);
+					public void failedCheck(Exception e, SpigetUpdateAbstract spigetUpdateAbstract) {
+						fancyLog(ChatColor.RED+"ProBleed failed to check for any updates!"+ChatColor.DARK_RED+" Is your internet running smoothly?");
+						fancyLog(ChatColor.DARK_RED+"Error: "+ChatColor.RED+e.getClass().getSimpleName());
+
 					}
-				});
-				updater.checkForUpdate(new UpdateCallback() {
+
 					@Override
-					public void updateAvailable(String newVersion, String downloadUrl, boolean hasDirectDownload) {
+					public void updateAvailable(String newVersion, String downloadUrl, boolean hasDirectDownload,SpigetUpdateAbstract updater) {
 						// First check if there is a direct download available
 						// (Either the resources is hosted on spigotmc.org, or Spiget has a cached version to download)
 						// external downloads won't work if they are disabled (by default) in spiget.properties
@@ -310,7 +304,7 @@ private void fancyLog(String mess){
 									fancyLog(ChatColor.GREEN+"########################################################################");
 									fancyLog(ChatColor.AQUA+"There is a new update available for ProBleed! Make sure to download it at");
 									fancyLog(ChatColor.BLUE+"https://www.spigotmc.org/resources/probleed-hc-blood-loss-sim.42696/");
-									fancyLog("What's new: "+ChatColor.DARK_GREEN+bUpdater.getLatestName());
+									fancyLog("What's new: "+ChatColor.DARK_GREEN+updater.getLatestResourceInfo().latestVersion.updateInfo.title);
 									fancyLog(ChatColor.GREEN+"########################################################################");
 									fancyLog(ChatColor.RED+"This update wasn't downloaded automagically because of the config settings");
 									fancyLog(ChatColor.DARK_RED+"Consider changing them to make your life easier!");
@@ -323,8 +317,8 @@ private void fancyLog(String mess){
 						if (hasDirectDownload) {
 
 							if (!getDescription().getVersion().contains("-DEV")&&updater.downloadUpdate()) {
-										fancyLog(ChatColor.GREEN+"You have just updated ProBleed! You are now on: "+ChatColor.AQUA+bUpdater.getLatestVersion());
-										fancyLog("What's new: "+ChatColor.DARK_GREEN+bUpdater.getLatestName());
+										fancyLog(ChatColor.GREEN+"You have just updated ProBleed! You are now on: "+ChatColor.AQUA+updater.getLatestResourceInfo().latestVersion.name);
+										fancyLog("What's new: "+ChatColor.DARK_GREEN+updater.getLatestResourceInfo().latestVersion.updateInfo.title);
 										fancyLog(ChatColor.GREEN+"It will be applied on the next server reload/restart");
 
 
@@ -342,14 +336,14 @@ private void fancyLog(String mess){
 					}
 
 					@Override
-					public void upToDate() {
+					public void upToDate(SpigetUpdateAbstract updater) {
 						fancyLog("You are running the latest version of ProBleed!");
 
 					}
 
 				});
 			}
-		},false);
-	}
+
+
 
 }

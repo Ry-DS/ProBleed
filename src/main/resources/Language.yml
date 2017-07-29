@@ -1,0 +1,8 @@
+bleeding-message: '&aYou are bleeding!&c Use a bandage to heal yourself'
+self-heal-message: '&aYou have self healed'
+heal-message: '&aYou have stopped your bleeding'
+death-message: '%player% failed to find a bandage and bled to death'
+reload-config: '&aConfig reloaded'
+item-name: '&aBandage'
+item-lore-1: '&bUse me to heal yourself from bleeding!'
+item-lore-2: 'Or use me as paper, that is fine as well'

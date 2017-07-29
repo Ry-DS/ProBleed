@@ -31,6 +31,10 @@
             <id>inventive-repo</id>
             <url>http://repo.inventivetalent.org/content/groups/public/</url>
         </repository>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
 </repositories>
 <dependencies>
     <!--Spigot API-->
@@ -55,10 +59,9 @@
         <scope>provided</scope>
     </dependency>
     <dependency>
-        <groupId>org.inventivetalent.spiget-update</groupId>
-        <artifactId>bukkit</artifactId>
+        <groupId>com.github.SimplyBallistic</groupId>
+        <artifactId>SpigetUpdater</artifactId>
         <version>LATEST</version>
-        <scope>compile</scope>
     </dependency>
 
 
